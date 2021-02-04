@@ -4,6 +4,7 @@
 
 # Immutable Cloud
 
-A proposed micro-service architectural design for synchronizing changing APIs
+micro-service architecture for synchronizing changing APIs
 
 </div>
+
