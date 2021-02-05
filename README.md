@@ -10,8 +10,6 @@
 
 <br>
 
-## Preface
-
 The API of any (micro-)service corresponds to its distinct set of functionalities. As these functionalities (inevitably) change overtime, so will its API.
 Such a change would need to be propagated to all dependent code (code that consumes the API), which can be a resource-consuming and particularly error-prone process, often resulting in downtimes and runtime errors in production.
 
