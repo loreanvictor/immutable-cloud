@@ -92,7 +92,7 @@ results in following mapping:
 
 <br>
 
-### Statful and Stateless Services
+### Stateful and Stateless Services
 
 Adjectives _stateful_ and _stateless_ are used in this document to indicate possibility of having multiple instances of a service,
 with potentially differing API versions, available. This mostly co-incides with the traditional definition of a stateless service, a service,
