@@ -225,7 +225,6 @@ This means the deprecation will result in the consumer invoking non-existing end
 
 👉 The deprecation _might be_ UNSAFE when target version is _latest matching available version_ for some consumer.
 This means the deprecation might re-introduce some bugs that were to be fixed between target version and _latest matching available version_ for the consumer calculated by excluding target version from registry.
-- This can be further investigated by keeping a separate log of all released versions (independent of current availability). Assuming the deprecation will not leave any consumer without a _matching available version_, then excluding target version from registry we will have a unique _latest matching available version_ for all consumers currently depending on target version. Lets call this version _LMAV<sup>*</sup>_, then if there are any patches between _LMAV<sup>*</sup>_ and target version, then deprecating target version will re-introduce bugs that those patches intended to fix.
 
 👉 The deprecation is SAFE when target version is NOT _latest matching available version_ for any consumer.
 
