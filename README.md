@@ -187,7 +187,7 @@ Each actual consumer **MUST** include its expected API version on each request. 
 - If there is no _matching available version_ in the registry, the service **MAY** attempt to respond to the request itself,
     or it **MAY** return a proper error (e.g. `417`)
 
-In case the request is being made to the URI of a specific version, the service **MAY** attempt to redirect to _latest matching available service_
+In case the request is being made to the URI of a specific version, the service **MAY** attempt to redirect to _latest matching available version_
 (in which case it **MUST** satisfy the same criteria outlined above), it **MAY** try to respond to the request itself, or it **MAY**
 return a proper error. In case of returning error, it is **RECOMMENDED** to have a consistent behavior between all versions, which includes _latest version_.
 
@@ -199,7 +199,7 @@ Actual consumers **MUST** be able to handle redirects, and **MAY** cache them fo
 
 Since services **MUST** be immutable, any update to a service **MUST** correspond to a change in version, even if the API is exactly the same.
 Subsequently, we assume updating a service and its API are the same thing (bug-fixes and internal minor changes **MUST** result in a new API version
-with an increased PATH number).
+with an increased PATCH number).
 
 Updates are conducted with two distinct and atomic actions: _Release_ and _Deprecation_.
 
