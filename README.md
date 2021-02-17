@@ -340,7 +340,8 @@ export async function deprecate(service, version) {
   delete registry[version]
   await saveRegistry(service, registry)
 }
-
+```
+```js
 export async function checkDeprecate(service, version) {
   const registry = await getRegistry(service)
   const lmav = latestMatchingAvailableVersion(version, registry)
