@@ -402,3 +402,5 @@ This document requires further work in these areas:
 - [ ] Figures, for better visualizing processes and concepts.
 - [ ] Pre-release versions: as of now, present document provides no guidance on how to treat [pre-release versions](https://semver.org/#spec-item-9), in particular, whether they should be considered for calculating _matching available version_ of a service, and if so, how should they be considered for calculating _latest matching available version_s.
 - [ ] Deprecation warnings: it might be useful to incorporate mechanisms for outlining potential timeline for deprecation of a version of an API, which might be useful for dev tools that can then warn maintainers of a consumer.
+- [ ] Patch version fixes: right now consumers cannot require a certain patch version or upwards. Fixating on patch versions might get too restrictive,
+which is not optimal for API versioning, but also in some cases consumers might need to ensure some fix is on the API version they use.
