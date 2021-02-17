@@ -143,6 +143,63 @@ The _cluster_ is the collection of all services and their consumers (or consumer
 - A set of URIs for services
 - A set of URIs for consumers (or consumer proxies)
 
+#### Example:
+
+```json
+{
+  "services": [
+    "https://auth.my-cloud",
+    "https://wallet.my-could",
+    "https://monitoring.my-cloud"
+  ],
+  "consumers": [
+    "https://web-app-proxy.my-cloud",
+    "https://admin-panel.my-cloud",
+    "https://android-proxy.my-cloud",
+    "https://ios-proxy.my-cloud",
+    "https://monitoring.my-cloud"
+  ]
+}
+```
+
+### Cluster Topology
+
+The _topology_ of a cluster is a mapping of services and their consumers. The exact format is not constrained, but the most basic example
+each service is identified by its main URI, and it is mapped to an array of URIs of consumers.
+
+Knowing the cluster, the topology can be computed on demand (by querying all consumers for their dependencies). It can also be
+accumulatively updated through deployments or kept up to date at regular intervals, etc.
+
+#### Example:
+
+```json
+{
+  "https://auth.my-cloud": [
+    "https://web-app-proxy.my-cloud",
+    "https://android-proxy.my-cloud",
+    "https://ios-proxy.my-cloud",
+    "https://wallet.my-could",
+    "https://monitoring.my-cloud"
+  ],
+  "https://wallet.my-could": [
+    "https://web-app-proxy.my-cloud",
+    "https://android-proxy.my-cloud",
+    "https://ios-proxy.my-cloud",
+    "https://monitoring.my-cloud"
+  ],
+  "https://monitoring.my-cloud": [
+    "https://admin-panel.my-cloud"
+  ]
+}
+```
+
+<br>
+
+## Operation Safety
+
+An operation (changes to available programs on the cluster) is called _SAFE_ if no new issues (undesired behaviors) are introduced
+to the actual consumers after the operation, and is called _UNSAFE_ otherwise.
+
 <br>
 
 # Versioning
@@ -170,12 +227,53 @@ Actual consumers **MUST** know which version of an API they expect to utilize. A
 - `A == X`
 - `B >= Y`
 
+```js
+export function match(target, expected) {
+  const [tsplit, esplit] = [target.split('.'), expected.split('.')]
+  return (
+    tsplit[0] === esplit[0]                         // --> major should be the same
+    && parseInt(tsplit[1]) >= parseInt(esplit[1])   // --> minor should be greater or equal
+  )
+}
+```
+
 A _matching available version_ of a service, for given expected version, is a version with an entry on the version registry who matches expected version as well.
+
+```js
+export function matchingAvailableVersion(expected, registry) {
+  return Object.keys(registry).filter(version => match(version, expected))
+}
+```
 
 The _latest matching available version_ of a service, for a given expected version, is a _matching available version_ for the expected version `X.Y.Z`, where for any other _matching available version_ `X.W.T`, either one of the following hold:
 
 - `W < Y`
 - `W == Y && T < Z`
+
+```js
+function greater(a, b) {
+  const [asplit, bsplit] = [a.split('.'), b.split('.')]
+  return (
+    (parseInt(asplit[0]) > parseInt(bsplit[0]))
+    || (parseInt(asplit[1]) > parseInt(bsplit[1]))
+    || (parseInt(asplit[2]) > parseInt(bsplit[2]))
+  )
+}
+
+export function latestMatchingAvailableVersion(expected, registry) {
+  let res
+
+  Object.keys(registry).forEach(version => {
+    if (match(version, expected)) {
+      if (!res || greater(version, res)) {
+        res = version
+      }
+    }
+  });
+
+  return res
+}
+```
 
 Each actual consumer **MUST** include its expected API version on each request. It is **RECOMMENDED** to be included in request header, and on a unique key (e.g. `Expect` or a custom header `Expected-Version`). In case the request is being made to the _main URI_ of the service, then:
 
@@ -212,6 +310,14 @@ on _main URI_ of the service, in which case it has effectively changed _latest v
 
 👉 A _release_ (without any deprecation) is ALWAYS SAFE, since existing consumers won't get affected.
 
+```js
+export async function release(service, version, url) {
+  const registry = await getRegistry(service)
+  registry[version] = url
+  await saveRegistry(service, registry)
+}
+```
+
 <br>
 
 ## Deprecation
@@ -227,6 +333,50 @@ This means the deprecation will result in the consumer invoking non-existing end
 This means the deprecation might re-introduce some bugs that were to be fixed between target version and _latest matching available version_ for the consumer calculated by excluding target version from registry.
 
 👉 The deprecation is SAFE when target version is NOT _latest matching available version_ for any consumer.
+
+```js
+export async function deprecate(service, version) {
+  const registry = await getRegistry(service)
+  delete registry[version]
+  await saveRegistry(service, registry)
+}
+
+export async function checkDeprecate(service, version) {
+  const registry = await getRegistry(service)
+  const lmav = latestMatchingAvailableVersion(version, registry)
+
+  if (lmav !== version) {
+    //
+    // this is not the latest matching available version
+    // for any consumer, safe deprecation
+    //
+    return 'SAFE'
+  } else {
+    delete registry[version]
+
+    const topology = await getClusterTopology()
+    const consumers = await Promise.all(
+      topology[service].map(consumer => getConsumer(consumer))
+    )
+
+    for (let consumer of consumers) {
+      if (!latestMatchingAvailableVersion(consumer[service], registry)) {
+        //
+        // some consumer would be left without a matching
+        // available version.
+        //
+        return 'UNSAFE'
+      }
+    }
+
+    //
+    // perhaps some bugs will be re-introduced,
+    // though there won't be any failures due to API mismatch
+    //
+    return 'WARN'
+  }
+}
+```
 
 <br>
 
