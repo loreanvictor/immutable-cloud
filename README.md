@@ -360,6 +360,7 @@ export async function checkDeprecate(service, version) {
       topology[service].map(consumer => getConsumer(consumer))
     )
 
+    let warn = false
     for (let consumer of consumers) {
       if (!latestMatchingAvailableVersion(consumer[service], registry)) {
         //
@@ -367,14 +368,18 @@ export async function checkDeprecate(service, version) {
         // available version.
         //
         return 'UNSAFE'
+      } else if (match(version, consumer[service])) {
+        //
+        // version was lmav for itself, which means in its own major it is
+        // the latest matching. if it matches any consumer expectation, it means
+        // it was lmav for the consumer as well, and deprecating it is a rollback with
+        // potential for re-introducing bugs.
+        //
+        warn = true
       }
     }
 
-    //
-    // perhaps some bugs will be re-introduced,
-    // though there won't be any failures due to API mismatch
-    //
-    return 'WARN'
+    return warn ? 'WARN' : 'SAFE'
   }
 }
 ```
