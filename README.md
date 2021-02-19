@@ -12,19 +12,19 @@
 
 # TLDR
 
-This is an architectural guide for running multiple versions of multiple (micro-)services and keeping track of everything. The main idea is to
-avoid unsafe operations, where a consumer's expectation of an API is different from the actual API.
+This is an architectural guide for maintaining multiple versions of multiple [(micro-)services](#service) and keeping track of [consumers](#consumer) who depend on different versions of these services, while ensuring [safety](#operation-safety) of various operations (release, deprecation, rollbacks) automatically.
 
-- 👉 Use semantic versioning for each service.
+- 👉 Use [semantic versioning](https://semver.org/) for each service.
 - 👉 Once deployed, never redeploy a particular version of a service (hence, _immutable cloud_).
-- 👉 Maintain a version registry for each service, outlining available versions and their URIs.
+- 👉 Maintain a [version registry](#service) for each service, outlining available versions and their URIs.
 - 👉 Consumers must also be present in-cluster and outline the versions of the services they need.
-  - For out-of-cluster consumers (e.g. mobile apps), use in-cluster proxies.
-- 👉 Maintain a cluster topology, outlining which services are used by which consumers.
+  - For [out-of-cluster consumers](#consumer) (e.g. mobile apps), use in-cluster proxies.
+- 👉 Maintain a [cluster topology](#cluster-topology), outlining which services are used by which consumers.
   - This can also be calculated on-demand by querying all consumers (or their proxies).
-- 👉 Whenever possible, release (a new version) and deprecate (an older version separately).
+- 👉 Whenever possible, [release](#release) (a new version) and [deprecate](#deprecation) (an older version) independently.
   - Safety of each of these operations can be (automatically) checked.
-- 👉 In version matching, implicitly treat patch numbers more flexibly.
+  - In cases [where this is not possible](#stateful-and-stateless-services), still [analyze operation safety](#stateful-services) by looking at operations independently.
+- 👉 In [version matching](#consumer-version-matching), implicitly treat patch numbers more flexibly.
   - This allows for patch rollbacks to be treated differently than minor / major rollbacks (see below).
 
 <br>
