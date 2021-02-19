@@ -116,7 +116,7 @@ results in following mapping:
 ### Stateful and Stateless Services
 
 Adjectives _stateful_ and _stateless_ are used in this document to indicate possibility of having multiple instances of a service,
-with potentially differing API versions, available. This mostly co-incides with the traditional definition of a stateless service, a service,
+with potentially differing API versions, available. This mostly co-incides with the traditional definition of a stateless service. However, a service
 which by the standard definition might be deemed stateful, might be considered _stateless_ under the definition provided here, and vice-versa.
 
 - If a service can be available with multiple differing API versions, it is called _stateless_.
