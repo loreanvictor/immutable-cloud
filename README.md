@@ -275,7 +275,7 @@ export function match(target, expected) {
 A _matching available version_ of a service, for given expected version, is a version with an entry on the version registry who matches expected version as well.
 
 ```js
-export function matchingAvailableVersion(expected, registry) {
+export function matchingAvailableVersions(expected, registry) {
   return Object.keys(registry).filter(version => match(version, expected))
 }
 ```
