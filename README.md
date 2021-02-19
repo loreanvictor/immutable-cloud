@@ -20,7 +20,7 @@ avoid unsafe operations, where a consumer's expectation of an API is different f
 - 👉 Maintain a version registry for each service, outlining available versions and their URIs.
 - 👉 Consumers must also be present in-cluster and outline the versions of the services they need.
   - For out-of-cluster consumers (e.g. mobile apps), use in-cluster proxies.
-- 👉 Maintain a cluster topology, outlining which consumers depend on which versions of which services.
+- 👉 Maintain a cluster topology, outlining which services are used by which consumers.
   - This can also be calculated on-demand by querying all consumers (or their proxies).
 - 👉 Whenever possible, release (a new version) and deprecate (an older version separately).
   - Safety of each of these operations can be (automatically) checked.
@@ -211,6 +211,23 @@ accumulatively updated through deployments or kept up to date at regular interva
   "https://monitoring.my-cloud": [
     "https://admin-panel.my-cloud"
   ]
+}
+```
+
+```js
+export async function getClusterTopology() {
+  const cluster = await getCluster()
+  const topology = {}
+
+  await Promise.all(cluster.consumers.map(
+    consumer => getConsumer(consumer).then(dependencies => {
+      Object.keys(dependencies).forEach(
+        service => topology[service] = (topology[service] || []).concat(consumer)
+      )
+    })
+  ))
+  
+  return topology
 }
 ```
 
