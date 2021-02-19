@@ -127,9 +127,6 @@ which by the standard definition might be deemed stateful, might be considered _
 A database is (most probably) a stateful service. The schema of the data IS the API of this service, and regardless of clustering, the data
 can NOT have multiple schemas, which means varying API versions can NOT be available at the same time.
 
-IF, however, the data is schema-less and consumers are NOT expecting any specific schema, then the service can be considered _stateless_
-for purposes of this document (despite it being a database service).
-
 <br>
 
 ## Consumer
