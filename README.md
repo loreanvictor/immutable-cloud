@@ -17,8 +17,11 @@ avoid unsafe operations, where a consumer's expectation of an API is different f
 
 - 👉 Use semantic versioning for each service.
 - 👉 Once deployed, never redeploy a particular version of a service (hence, _immutable cloud_).
+- 👉 Maintain a version registry for each service, outlining available versions and their URIs.
 - 👉 Consumers must also be present in-cluster and outline the versions of the services they need.
-- 👉 For out-of-cluster consumers (e.g. mobile apps), use in-cluster proxies.
+  - For out-of-cluster consumers (e.g. mobile apps), use in-cluster proxies.
+- 👉 Maintain a cluster topology, outlining which consumers depend on which versions of which services.
+  - This can also be calculated on-demand by querying all consumers (or their proxies).
 - 👉 Whenever possible, release (a new version) and deprecate (an older version separately).
   - Safety of each of these operations can be (automatically) checked.
 - 👉 In version matching, implicitly treat patch numbers more flexibly.
