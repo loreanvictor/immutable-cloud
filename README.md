@@ -10,6 +10,24 @@
 
 <br>
 
+# TLDR
+
+This is an architectural guide for running multiple versions of multiple (micro-)services and keeping track of everything. The main idea is to
+avoid unsafe operations, where a consumer's expectation of an API is different from the actual API.
+
+- 👉 Use semantic versioning for each service.
+- 👉 Once deployed, never redeploy a particular version of a service (hence, _immutable cloud_).
+- 👉 Consumers must also be present in-cluster and outline the versions of the services they need.
+- 👉 For out-of-cluster consumers (e.g. mobile apps), use in-cluster proxies.
+- 👉 Whenever possible, release (a new version) and deprecate (an older version separately).
+  - Safety of each of these operations can be (automatically) checked.
+- 👉 In version matching, implicitly treat patch numbers more flexibly.
+  - This allows for patch rollbacks to be treated differently than minor / major rollbacks (see below).
+
+<br>
+
+# Preface
+
 The API of any (micro-)service corresponds to its distinct set of functionalities. As these functionalities (inevitably) change overtime, so will its API.
 Such a change would need to be propagated to all dependent code (code that consumes the API), which can be a resource-consuming and particularly error-prone process, often resulting in downtimes and runtime errors in production.
 
